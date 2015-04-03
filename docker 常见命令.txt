@@ -1,0 +1,86 @@
+##docker安装
+cd /usr/local/bin/
+ wget https://get.docker.com/builds/Linux/x86_64/docker-latest -O docker
+ chmod +x docker 
+ ./docker -d >/var/log/docker 2>&1 &
+ docker pull yuanbluemood/centos6
+  
+  
+  ###docker rm -f $(docker ps -a -q) ; docker rmi $(docker images -q -a) 
+ docker build -t yuanbluemood/centos6 .
+ docker run -t -d -P \
+ -v /home/mobileweb/project/voga-cms-gl:/home/mobileweb/project \
+ -v /home/mobileweb/projectlogs/tomcatlogs-cms-gl:/home/mobileweb/projectlogs\
+ yuanbluemood/centos6
+ docker ps |grep -v CONTAINER|awk '{print $1}'|xargs docker stop&&\
+ docker ps -a|grep -v CONTAINER|awk '{print $1}'|xargs docker rm&& \
+ docker ps -a
+ 
+ su - mobileweb
+ cd /home/mobileweb/project && mkdir cms-gl cms-id cms-in cms-th && mkdir synch-gl synch-id synch-in synch-th
+  
+ cd /home/mobileweb/projectlogs && mkdir cms-gl cms-id cms-in cms-th && mkdir synch-gl synch-id synch-in synch-th
+ 
+docker run -t -d -p 2222:22 -p 9080:8080 -v /home/mobileweb/project/cms-gl:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-gl:/home/mobileweb/projectlogs --name=cms-gl yuanbluemood/centos6
+docker run -t -d -p 2223:22 -p 9081:8080 -v /home/mobileweb/project/cms-in:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-in:/home/mobileweb/projectlogs --name=cms-in yuanbluemood/centos6
+docker run -t -d -p 2224:22 -p 9082:8080 -v /home/mobileweb/project/cms-id:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-id:/home/mobileweb/projectlogs --name=cms-id yuanbluemood/centos6
+docker run -t -d -p 2225:22 -p 9083:8080 -v /home/mobileweb/project/cms-th:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-th:/home/mobileweb/projectlogs --name=cms-th yuanbluemood/centos6
+
+docker run -t -d -p 2226:22 -p 9084:8080 -v /home/mobileweb/project/synch-gl:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-gl:/home/mobileweb/projectlogs --name=synch-gl yuanbluemood/centos6
+docker run -t -d -p 2227:22 -p 9085:8080 -v /home/mobileweb/project/synch-in:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-in:/home/mobileweb/projectlogs --name=synch-in yuanbluemood/centos6
+docker run -t -d -p 2228:22 -p 9086:8080 -v /home/mobileweb/project/synch-id:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-id:/home/mobileweb/projectlogs --name=synch-id yuanbluemood/centos6
+docker run -t -d -p 2229:22 -p 9087:8080 -v /home/mobileweb/project/synch-th:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-th:/home/mobileweb/projectlogs --name=synch-th yuanbluemood/centos6
+ 
+cd /home/mobileweb/project;mkdir project;
+cp -r synch project/synch-es
+cp -r voga-cms project/cms-es
+cd project;for i in `ls `;do tar zcf ${i}_20150312.tgz $i;done
+s3cmd sync *.tgz s3://web-version/project/ 
+
+ cd /home/mobileweb/project&&s3cmd get s3://web-version/project/*-br*.tgz&& tar zxf cms-br*.tgz&& tar zxf synch-br*.tgz
+ cd /home/mobileweb/projectlogs && mkdir cms-br && mkdir synch-br
+ docker run -t -d -p 2222:22 -p 9080:8080 -v /home/mobileweb/project/cms-br:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-br:/home/mobileweb/projectlogs --name=cms-br yuanbluemood/centos6
+ docker run -t -d -p 2223:22 -p 9081:8080 -v /home/mobileweb/project/synch-br:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-br:/home/mobileweb/projectlogs --name=synch-br yuanbluemood/centos6
+
+ chown -R mobileweb.mobileweb synch-br/ cms-br/
+ 
+ 
+ 
+ cd /home/mobileweb/project&&s3cmd get s3://web-version/project/*-ru*.tgz&& tar zxf cms-ru*.tgz&& tar zxf synch-ru*.tgz
+ cd /home/mobileweb/projectlogs && mkdir cms-ru && mkdir synch-ru
+ chown -R mobileweb.mobileweb synch-ru/ cms-ru/
+ 
+ cd /home/mobileweb/project&&s3cmd get s3://web-version/project/*-me*.tgz&& tar zxf cms-me*.tgz&& tar zxf synch-me*.tgz
+ cd /home/mobileweb/projectlogs && mkdir cms-me && mkdir synch-me
+ docker run -t -d -p 2222:22 -p 9080:8080 -v /home/mobileweb/project/cms-me:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-me:/home/mobileweb/projectlogs --name=cms-me yuanbluemood/centos6
+ docker run -t -d -p 2223:22 -p 9081:8080 -v /home/mobileweb/project/synch-me:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-me:/home/mobileweb/projectlogs --name=synch-me yuanbluemood/centos6
+ docker run -t -d -p 2224:22 -p 9082:8080 -v /home/mobileweb/project/cms-ru:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-ru:/home/mobileweb/projectlogs --name=cms-ru yuanbluemood/centos6
+ docker run -t -d -p 2225:22 -p 9083:8080 -v /home/mobileweb/project/synch-ru:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-ru:/home/mobileweb/projectlogs --name=synch-ru yuanbluemood/centos6
+
+ chown -R mobileweb.mobileweb synch-me/ cms-me/
+
+
+
+cd /home/mobileweb/project&&s3cmd get s3://web-version/project/*-es*.tgz&& tar zxf cms-es*.tgz&& tar zxf synch-es*.tgz
+ cd /home/mobileweb/projectlogs && mkdir cms-es && mkdir synch-es
+ docker run -t -d -p 2222:22 -p 9080:8080 -v /home/mobileweb/project/cms-es:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-es:/home/mobileweb/projectlogs --name=cms-es yuanbluemood/centos6
+ docker run -t -d -p 2223:22 -p 9081:8080 -v /home/mobileweb/project/synch-es:/home/mobileweb/project -v /home/mobileweb/projectlogs/synch-es:/home/mobileweb/projectlogs --name=synch-br yuanbluemood/centos6
+
+ cd /home/mobileweb/project&&chown -R mobileweb.mobileweb *-es/
+ 
+
+
+ 
+##新增四个tomcat，分别部署data_pro、pay、spider和ios的cms服务
+ su - mobileweb
+ cd /home/mobileweb/project && mkdir cms-data_pro cms-pay cms-spider cms-ios
+  
+ cd /home/mobileweb/projectlogs && mkdir cms-data_pro cms-pay cms-spider cms-ios
+docker run -t -d -p 2222:22 -p 9080:8080 -v /home/mobileweb/project/cms-data_pro:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-data_pro:/home/mobileweb/projectlogs --name=cms-data_pro yuanbluemood/centos6
+docker run -t -d -p 2223:22 -p 9081:8080 -v /home/mobileweb/project/cms-pay:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-pay:/home/mobileweb/projectlogs --name=cms-pay yuanbluemood/centos6
+docker run -t -d -p 2224:22 -p 9082:8080 -v /home/mobileweb/project/cms-spider:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-spider:/home/mobileweb/projectlogs --name=cms-spider yuanbluemood/centos6
+docker run -t -d -p 2225:22 -p 9083:8080 -v /home/mobileweb/project/cms-ios:/home/mobileweb/project -v /home/mobileweb/projectlogs/cms-ios:/home/mobileweb/projectlogs --name=cms-ios yuanbluemood/centos6
+
+
+ 
+ docker restart cms-gl cms-id cms-in cms-th synch-gl synch-id synch-in synch-th

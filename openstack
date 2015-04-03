@@ -1,0 +1,46 @@
+ 配yum源：wget https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+ rpm -ivh 
+ yum install vconfig
+ modprobe 8021q
+
+
+ yum install yum-plugin-priorities
+ yum install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+yum install http://rdo.fedorapeople.org/openstack-juno/rdo-release-juno.rpm
+yum install openstack-selinux
+
+
+On the controller node, edit the /etc/nova/nova.conf file and complete the following action:
+
+In the [neutron] section, enable the metadata proxy and configure the secret:
+
+Select Text
+1
+2
+3
+4
+[neutron]
+...
+service_metadata_proxy = True
+metadata_proxy_shared_secret = METADATA_SECRET
+Replace METADATA_SECRET with the secret you chose for the metadata proxy.
+
+On the controller node, restart the Compute API service:
+
+# systemctl restart openstack-nova-api.service
+
+image:
+systemctl restart openstack-glance-api.service openstack-glance-registry.service
+
+controller:
+ systemctl restart openstack-nova-api.service openstack-nova-scheduler.service   openstack-nova-conductor.service
+systemctl restart neutron-server.service
+systemctl restart openstack-nova-api.service
+
+network:
+systemctl restart openvswitch.service neutron-openvswitch-agent.service neutron-l3-agent.service \
+  neutron-dhcp-agent.service neutron-metadata-agent.service
+
+ compute:
+ systemctl restart  openvswitch.service openstack-nova-compute.service neutron-openvswitch-agent.service libvirtd.service
+
